@@ -182,6 +182,10 @@ def perception_step(Rover):
     Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
     Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
 
-    Rover.nav_dists, Rover.nav_angles = to_polar_coords(navigable_x_rover, navigable_y_rover)
+    idx = np.where(navigable_x_world==40)[0]
+    dist, angle = to_polar_coords(np.array([40]), np.array(np.max(navigable_y_world[idx])))
+
+    Rover.nav_dists = dist
+    Rover.nav_angles = angle
 
     return Rover
