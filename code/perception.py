@@ -182,10 +182,25 @@ def perception_step(Rover):
     Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
     Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
 
-    idx = np.where(navigable_x_world==40)[0]
-    dist, angle = to_polar_coords(np.array([40]), np.array(np.max(navigable_y_world[idx])))
+    # A very simple obstacle detection (for obstacles directly in front of the robot. )
+    # Obtain indicies of pixles within navaiable terrain just in front of the robot. 
+    idx = np.where ( (navigable_x_rover > 5) & ( navigable_x_rover <= 60))[0]
+    xvalues = navigable_x_rover[idx]
+    yvalues = navigable_y_rover[idx]
 
+    idy = np.where( yvalues > -5 )[0]
+    dist, angles = to_polar_coords(xvalues[idy], yvalues[idy])
     Rover.nav_dists = dist
-    Rover.nav_angles = angle
+    Rover.nav_angles = np.mean(angles)
+
+    print ("Avg steer angle ", Rover.nav_angles)
+
+    # Obstacle 
+    idy = np.where ( (yvalues > -30) & (yvalues < 30) )
+    dist, angles = to_polar_coords(xvalues[idy], yvalues[idy])
+
+    print ("Avg Distance ahead ", len(dist))
+
+    Rover.obs_dist = len(dist)
 
     return Rover
