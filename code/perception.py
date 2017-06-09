@@ -184,23 +184,19 @@ def perception_step(Rover):
 
     # A very simple obstacle detection (for obstacles directly in front of the robot. )
     # Obtain indicies of pixles within navaiable terrain just in front of the robot. 
-    idx = np.where ( (navigable_x_rover > 5) & ( navigable_x_rover <= 60))[0]
-    xvalues = navigable_x_rover[idx]
-    yvalues = navigable_y_rover[idx]
+    # idx = np.where ( (navigable_x_rover > 5) & ( navigable_x_rover <= 60))[0]
+    # xvalues = navigable_x_rover[idx]
+    # yvalues = navigable_y_rover[idx]
 
-    idy = np.where( yvalues > -5 )[0]
-    dist, angles = to_polar_coords(xvalues[idy], yvalues[idy])
-    Rover.nav_dists = dist
-    Rover.nav_angles = np.mean(angles)
+    # idy = np.where( yvalues > -5 )[0]
 
-    print ("Avg steer angle ", Rover.nav_angles)
+    # ymax = np.max(navigable_y_rover)
+    # idy = np.where( (navigable_y_rover > ymax-10) & (navigable_y_rover < ymax+10))
+    
+    dist, angles = to_polar_coords(navigable_x_rover, navigable_y_rover)
 
-    # Obstacle 
-    idy = np.where ( (yvalues > -30) & (yvalues < 30) )
-    dist, angles = to_polar_coords(xvalues[idy], yvalues[idy])
-
-    print ("Avg Distance ahead ", len(dist))
-
-    Rover.obs_dist = len(dist)
+    idx = np.where((angles >= -10) & (angles <= 10))
+    Rover.nav_dists = dist[idx]
+    Rover.nav_angles = angles[idx]
 
     return Rover
