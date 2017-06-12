@@ -71,6 +71,7 @@ class RoverState():
         # obstacles and rock samples
         self.worldmap = np.zeros((200, 200, 3), dtype=np.float) 
         self.samples_pos = None # To store the actual sample positions
+        self.sample_dis = np.inf
         self.samples_to_find = 0 # To store the initial count of samples
         self.samples_found = 0 # To count the number of samples found
         self.near_sample = 0 # Will be set to telemetry value data["near_sample"]
@@ -79,8 +80,8 @@ class RoverState():
 
         # Recovery strategies in case robot get stuck behind a rock.
         self.stuck_epoch = 0 # How much time we are spending in throttle > 0 and vel < 0
-        self.recovery_modes = ['Backoff_TurnLeft', 'Backoff_TurnRight', 'Backoff']
-# Initialize our rover 
+        self.recovery_epoch = 0 # How much time we are spending in current recovery.
+# Initialize our rover
 Rover = RoverState()
 
 # Variables to track frames per second (FPS)

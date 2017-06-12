@@ -7,8 +7,8 @@ def rock_filter(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 
     # Yellowish color range
-    low = np.array([0, 100, 100])
-    high = np.array([160, 255, 255])
+    low = np.array([20, 100, 100])
+    high = np.array([30, 255, 255])
 
     fltr = cv2.inRange(hsv, low, high)
 
@@ -197,5 +197,14 @@ def perception_step(Rover):
     idx = np.where((angles >= -5) & (angles <= 30))
     Rover.nav_dists = dist[idx]
     Rover.nav_angles = angles[idx]
+
+    # Compute the distance to a rock, if the rock is present, try to move twoards the rock.
+    if  (np.count_nonzero(rock_x_rover) +  np.count_nonzero(rock_y_rover)) > 20:
+        rock_dist, rock_angles = to_polar_coords(rock_x_rover, rock_y_rover)
+        print ("*****#### distance to rock %f"%np.mean(rock_dist))
+        Rover.nav_angles = rock_angles
+        Rover.sample_dist = np.mean(rock_dist)
+    else:
+        Rover.sample_dist = np.inf
 
     return Rover
