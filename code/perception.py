@@ -178,24 +178,23 @@ def perception_step(Rover):
                                               200, 
                                               10)
 
-    Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 1
-    Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
-    Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
+    # Only update the world map if the Rover's pitch/roll angles are within a given range
+    should_update_worldmap = True
 
-    # A very simple obstacle detection (for obstacles directly in front of the robot. )
-    # Obtain indicies of pixles within navaiable terrain just in front of the robot. 
-    # idx = np.where ( (navigable_x_rover > 5) & ( navigable_x_rover <= 60))[0]
-    # xvalues = navigable_x_rover[idx]
-    # yvalues = navigable_y_rover[idx]
+    if Rover.pitch >= 1 and Rover.pitch < 359:
+        should_update_worldmap = False
 
-    # idy = np.where( yvalues > -5 )[0]
+    if Rover.roll >=1 and Rover.roll < 359:
+        should_update_worldmap = False
 
-    # ymax = np.max(navigable_y_rover)
-    # idy = np.where( (navigable_y_rover > ymax-10) & (navigable_y_rover < ymax+10))
-    
+    if should_update_worldmap:
+        Rover.worldmap[obstacle_y_world, obstacle_x_world, 0] += 1
+        Rover.worldmap[rock_y_world, rock_x_world, 1] += 1
+        Rover.worldmap[navigable_y_world, navigable_x_world, 2] += 1
+
     dist, angles = to_polar_coords(navigable_x_rover, navigable_y_rover)
 
-    idx = np.where((angles >= -10) & (angles <= 10))
+    idx = np.where((angles >= -20) & (angles <= 20))
     Rover.nav_dists = dist[idx]
     Rover.nav_angles = angles[idx]
 
