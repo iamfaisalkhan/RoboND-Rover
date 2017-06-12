@@ -181,10 +181,10 @@ def perception_step(Rover):
     # Only update the world map if the Rover's pitch/roll angles are within a given range
     should_update_worldmap = True
 
-    if Rover.pitch >= 1 and Rover.pitch < 359:
+    if Rover.pitch >= 0.5 and Rover.pitch < 359:
         should_update_worldmap = False
 
-    if Rover.roll >=1 and Rover.roll < 359:
+    if Rover.roll >= 0.5 and Rover.roll < 359:
         should_update_worldmap = False
 
     if should_update_worldmap:
@@ -194,7 +194,7 @@ def perception_step(Rover):
 
     dist, angles = to_polar_coords(navigable_x_rover, navigable_y_rover)
 
-    idx = np.where((angles >= -20) & (angles <= 20))
+    idx = np.where((angles >= -5) & (angles <= 30))
     Rover.nav_dists = dist[idx]
     Rover.nav_angles = angles[idx]
 

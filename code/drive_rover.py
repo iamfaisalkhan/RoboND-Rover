@@ -31,7 +31,7 @@ app = Flask(__name__)
 # and y-axis increasing downward.
 ground_truth = mpimg.imread('../calibration_images/map_bw.png')
 # This next line creates arrays of zeros in the red and blue channels
-# and puts the map into the green channel.  This is why the underlying 
+# and puts the map into the green channel.  This is why the underlying
 # map output looks green in the display image
 ground_truth_3d = np.dstack((ground_truth*0, ground_truth*255, ground_truth*0)).astype(np.float)
 
@@ -49,14 +49,8 @@ class RoverState():
         self.steer = 0 # Current steering angle
         self.throttle = 0 # Current throttle value
         self.brake = 0 # Current brake value
-
-        self.obs_dists = None # Distance to an obstacle ahead
-                              # Upon approach to the obstacle try to steer away 
-                              # from it. 
-                              
         self.nav_angles = None # Angles of navigable terrain pixels
         self.nav_dists = None # Distances of navigable terrain pixels
-
         self.ground_truth = ground_truth_3d # Ground truth worldmap
         self.mode = 'forward' # Current mode (can be forward or stop)
         self.throttle_set = 0.2 # Throttle setting when accelerating
@@ -67,7 +61,7 @@ class RoverState():
         # get creative in adding new fields or modifying these!
         self.stop_forward = 25 # Threshold to initiate stopping
         self.go_forward = 30 # Threshold to go forward again
-        self.max_vel = 2 # Maximum velocity (meters/second)
+        self.max_vel = 1.4 # Maximum velocity (meters/second)
         # Image output from perception step
         # Update this image to display your intermediate analysis steps
         # on screen in autonomous mode
@@ -82,6 +76,9 @@ class RoverState():
         self.near_sample = 0 # Will be set to telemetry value data["near_sample"]
         self.picking_up = 0 # Will be set to telemetry value data["picking_up"]
         self.send_pickup = False # Set to True to trigger rock pickup
+
+        # Recovery strategies in case robot get stuck behind a rock.
+        self.recovery_modes = ['Backoff_TurnLeft', 'Backoff_TurnRight', 'Backoff']
 # Initialize our rover 
 Rover = RoverState()
 
