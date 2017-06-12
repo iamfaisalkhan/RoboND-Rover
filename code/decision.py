@@ -75,6 +75,15 @@ def decision_step(Rover):
                     Rover.steer = 0
                     Rover.mode = 'stop'
 
+            # Make sure robot is making progress
+            if Rover.throttle > 0 and Rover.vel <= 0.01:
+                Rover.stuck_epoch += 1
+            else:
+                Rover.stuck_epoch = 0 # Reset time the robot has been stuck.
+
+            if Rover.stuck_epoch > 10:
+                Rover.mode = Rover.recovery_modes[np.random.randint(3)]
+
         # If we're already in "stop" mode then make different decisions
         elif Rover.mode == 'stop':
             # If we're in stop mode but still moving keep braking
@@ -100,5 +109,16 @@ def decision_step(Rover):
                     # Set steer to mean angle
                     Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
                     Rover.mode = 'forward'
+
+        elif Rover.mode == 'Backoff' or Rover.mode == 'Backoff_TurnLeft' or Rover.mode == 'Backoff_TurnRight':
+            print ("Starting recovery mode")
+            Rover.steer = 0
+            Rover.throttle = -0.1
+
+            # If we have moved a bit backward lets try going forward again.
+            if Rover.vel >= 0.2:
+                Rover.throttle = 0
+                Rover.brake = Rover.brake_set
+                Rover.mode = 'forward'
     
     return Rover
