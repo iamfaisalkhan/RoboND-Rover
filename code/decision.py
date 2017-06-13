@@ -76,18 +76,18 @@ def decision_step(Rover):
         elif Rover.mode == 'rock_picking':
             Rover.rock_picking_epoch += 1
 
-            if Rover.sample_dist < 20:
-                Rover.brake = 0.3
+            if Rover.sample_dist < 18:
+                Rover.brake = Rover.brake_set
                 Rover.throttle = 0.0
-                if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
+                if Rover.near_sample and Rover.vel <= 0.01 and Rover.vel >= 0.0 and not Rover.picking_up:
                     Rover.rock_picking_epoch = 0
                     Rover.send_pickup = True
                     Rover.mode = 'post_pickup'
 
-            if Rover.rock_picking_epoch >= 300:
+            if Rover.rock_picking_epoch >= 100:
                 Rover.rock_picking_epoch = 0
                 Rover.sample_dist = np.inf
-                Rover.mode = 'stop'
+                Rover.mode = 'recovery'
 
         elif Rover.mode == 'post_pickup':
             Rover.rock_picking_epoch += 1
@@ -102,18 +102,18 @@ def decision_step(Rover):
 
         elif Rover.mode == 'recovery':
             print ("recovery mode")
-            Rover.picking_up = False
+            Rover.brake = 0
             Rover.steer = 0.0
             Rover.throttle = -0.2
 
             # If we have moved a bit backward lets try going forward again.
             Rover.recovery_epoch += 1
 
-            if Rover.recovery_epoch > 10:
+            if Rover.recovery_epoch > 20:
                 Rover.throttle = 0
                 Rover.brake = Rover.brake_set
+                Rover.stuck_epoch = 0
                 Rover.mode = 'forward'
                 Rover.recovery_epoch = 0
-                Rover.epoch_struck = 0
-    
+
     return Rover
