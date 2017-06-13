@@ -15,7 +15,6 @@ def decision_step(Rover):
     if Rover.nav_angles is not None:
         # Check for Rover.mode status
         if Rover.mode == 'forward':
-            print (Rover.vel)
             # Check the extent of navigable terrain
             if len(Rover.nav_dists) >= Rover.stop_forward:
                 # If mode is forward, navigable terrain looks good 
@@ -38,7 +37,6 @@ def decision_step(Rover):
                     Rover.mode = 'stop'
             # Are we approaching a rock?
             if Rover.sample_dist != np.inf and Rover.sample_dist <= 30:
-                Rover.throttle = 0.2
                 Rover.mode = 'rock_picking'
 
             # Make sure robot is making progress
@@ -48,7 +46,7 @@ def decision_step(Rover):
                 Rover.stuck_epoch = 0 # Reset time the robot has been stuck.
 
             if Rover.stuck_epoch > 10:
-                Rover.mode = 'reverse'
+                Rover.mode = 'recovery'
 
         # If we're already in "stop" mode then make different decisions
         elif Rover.mode == 'stop':
@@ -60,14 +58,14 @@ def decision_step(Rover):
             # If we're not moving (vel < 0.2) then do something else
             elif Rover.vel <= 0.2:
                 # Now we're stopped and we have vision data to see if there's a path forward
-                if len(Rover.nav_angles) < Rover.go_forward:
+                if len(Rover.nav_dists) < Rover.go_forward:
                     Rover.throttle = 0
                     # Release the brake to allow turning
                     Rover.brake = 0
                     # Turn range is +/- 15 degrees, when stopped the next line will induce 4-wheel turning
                     Rover.steer = -15 # Could be more clever here about which way to turn
                 # If we're stopped but see sufficient navigable terrain in front then go!
-                if len(Rover.nav_angles) >= Rover.go_forward:
+                if len(Rover.nav_dists) >= Rover.go_forward:
                     # Set throttle back to stored value
                     Rover.throttle = Rover.throttle_set
                     # Release the brake
@@ -76,27 +74,42 @@ def decision_step(Rover):
                     Rover.steer = np.clip(np.mean(Rover.nav_angles * 180/np.pi), -15, 15)
                     Rover.mode = 'forward'
         elif Rover.mode == 'rock_picking':
+            Rover.rock_picking_epoch += 1
+
             if Rover.sample_dist < 20:
-                Rover.brake = Rover.brake_set
+                Rover.brake = 0.3
                 Rover.throttle = 0.0
-                if Rover.vel <= 0:
+                if Rover.near_sample and Rover.vel == 0 and not Rover.picking_up:
+                    Rover.rock_picking_epoch = 0
                     Rover.send_pickup = True
                     Rover.mode = 'post_pickup'
 
-        elif Rover.mode == 'post_pickup':
-            if Rover.picking_up == False:
+            if Rover.rock_picking_epoch >= 300:
+                Rover.rock_picking_epoch = 0
                 Rover.sample_dist = np.inf
                 Rover.mode = 'stop'
 
-        elif Rover.mode == 'reverse':
-            print ("In recovery mode")
-            Rover.steer = 0
+        elif Rover.mode == 'post_pickup':
+            Rover.rock_picking_epoch += 1
+
+            if Rover.picking_up == False:
+                Rover.sample_dist = np.inf
+                Rover.mode = 'stop'
+            elif Rover.rock_picking_epoch >= 1000:
+                Rover.rock_picking_epoch = 0
+                Rover.sample_dist = np.inf
+                Rover.mode = 'stop'
+
+        elif Rover.mode == 'recovery':
+            print ("recovery mode")
+            Rover.picking_up = False
+            Rover.steer = 0.0
             Rover.throttle = -0.2
 
             # If we have moved a bit backward lets try going forward again.
             Rover.recovery_epoch += 1
 
-            if Rover.recovery_epoch > 3:
+            if Rover.recovery_epoch > 10:
                 Rover.throttle = 0
                 Rover.brake = Rover.brake_set
                 Rover.mode = 'forward'
