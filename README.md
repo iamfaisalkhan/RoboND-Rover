@@ -135,6 +135,16 @@ Below is rough sketch of states and the transition between different states.
 
 ![state diagram][image7]
 
+** Limitation & Future Work **
+
+The state machine is still have a lot of room for improvement. Here are few things that I might do differently (or improve upon the current version).
+
+* When navigating the area, build a map of pixels that have already been visited and prefer unexplored areas.
+* Compute a better approach angle towards the rock so to avoid hitting the wall. 
+* The rovery recovery can get stuck itself specially when trying to pick up the rock very close to the wall . As the robot moves away from the wall, it will again move back to the same  position trying to pick up the rock. 
+* Move the robot along the wall. 
+
+Just to name a few areas to improve upon. 
 
 ** Final Result **
 
