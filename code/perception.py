@@ -199,9 +199,8 @@ def perception_step(Rover):
     Rover.nav_angles = angles[idx]
 
     # Compute the distance to a rock, if the rock is present, try to move twoards the rock.
-    if  (np.count_nonzero(rock_x_rover) +  np.count_nonzero(rock_y_rover)) > 20:
+    if(np.count_nonzero(rock_x_rover) + np.count_nonzero(rock_y_rover)) > 20:
         rock_dist, rock_angles = to_polar_coords(rock_x_rover, rock_y_rover)
-        print ("*****#### distance to rock %f"%np.mean(rock_dist))
         Rover.nav_angles = rock_angles
         Rover.sample_dist = np.mean(rock_dist)
     else:

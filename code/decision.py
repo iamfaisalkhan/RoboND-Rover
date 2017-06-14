@@ -9,7 +9,6 @@ def decision_step(Rover):
     # Here you're all set up with some basic functionality but you'll need to
     # improve on this decision tree to do a good job of navigating autonomously!
 
-    print (Rover.mode)
     # Example:
     # Check if we have vision data to make decisions with
     if Rover.nav_angles is not None:
@@ -101,7 +100,6 @@ def decision_step(Rover):
                 Rover.mode = 'stop'
 
         elif Rover.mode == 'recovery':
-            print ("recovery mode")
             Rover.picking_up = False
             Rover.steer = 0.0
             Rover.throttle = -0.2
